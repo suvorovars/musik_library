@@ -9,4 +9,3 @@ def get_data():
     }
     return jsonify(data)
 
-app.run()
