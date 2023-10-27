@@ -41,5 +41,31 @@ def add_performers():
         return jsonify({'success': True})
     return jsonify({'success': False})
 
+@app.route('/api/get/strings', methods=['POST'])
+def get_strings():
+    # TODO: сделать запрос в базу данных с возвратом данных в таком виде
+    return jsonify([
+        {
+            "disk": "Ремиксы",
+            "strings": [
+                {
+                    "number": 1,
+                    "track_title": "Начало",
+                    "performer_name": "<NAME>",
+                    "genre_title": "<TITLE>",
+                    "duration": "<TIME>",
+
+                },
+                {
+                    "number": 2,
+                    "track_title": "Конец",
+                    "performer_name": "<NAME>",
+                    "genre_title": "<TITLE>",
+                    "duration": "<TIME>"
+                }
+            ]
+        }
+    ])
+
 
 app.run()

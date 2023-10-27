@@ -5,10 +5,17 @@ import Disk from './Disk'
 import * as styles from './App.css';
 
 class App extends React.Component {
-
-
+    response = {
+        disk: {
+            disk_title: '',
+            strings:[],
+        }
+    }
+    componentDidMount() {
+        fetch('http://localhost:5000/api/strings')
+    }
     render() {
-        const someData = "Home";
+
         return (
             <div>
                 <Header/>
