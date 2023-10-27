@@ -1,0 +1,47 @@
+.disk {
+  background-color: #2f2f2f;
+  border-radius: 20px;
+  margin-top: 20px;
+  display: flex;
+}
+.disk .disk_name {
+  background-color: #FFE401;
+  width: 30%;
+  aspect-ratio: 1 / 1;
+  /*padding-top: 100%;*/
+  border-radius: 15px;
+  margin-left: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+}
+.disk .disk_name h1{
+  color: #000;
+  text-align: left;
+  margin-left: 10px;
+  font-size: 64px;
+  padding: 1em 0;
+}
+
+.disk .disk_name h2{
+  color: #000;
+  text-align: right;
+  margin-right: 20px;
+  font-size: 64px;
+  margin-top: -1em;
+}
+
+.disk.disk_content {
+
+}
+@media (max-width: 768px){
+  .disk {
+    display: block;
+  }
+  .disk.disk_content{
+    display: flex;
+  }
+}
+
+
+

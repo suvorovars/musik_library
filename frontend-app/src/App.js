@@ -1,15 +1,23 @@
 import React from 'react';
+import Header from './Header'
+import Disk from './Disk'
+
+import * as styles from './App.css';
 
 class App extends React.Component {
-    requestToDiskList () {
-    }
+
+
     render() {
+        const someData = "Home";
         return (
-        <div>
-            <h1>Hello world</h1>
-        </div>
-    )
+            <div>
+                <Header/>
+                <Disk/>
+                <Disk/>
+                <Disk/>
+            </div>
+        );
     }
 }
 
-export default App
+export default App;
