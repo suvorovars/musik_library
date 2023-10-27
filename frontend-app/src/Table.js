@@ -7,6 +7,7 @@ class Table extends React.Component {
             <table className='table'>
                 <thead>
                     <tr>
+                        <th>№</th>
                         <th>Title</th>
                         <th>Artist</th>
                         <th>Genre</th>
@@ -15,18 +16,21 @@ class Table extends React.Component {
                 </thead>
                 <tbody>
                     <tr>
+                        <td>1</td>
                         <td>Title 1</td>
                         <td>Artist 1</td>
                         <td>Genre 1</td>
                         <td>4:06</td>
                     </tr>
                     <tr>
+                        <td>2</td>
                         <td>Title 1</td>
                         <td>Artist 1</td>
                         <td>Genre 1</td>
                         <td>4:06</td>
                     </tr>
                     <tr>
+                        <td>3</td>
                         <td>Title 1</td>
                         <td>Artist 1</td>
                         <td>Genre 1</td>
