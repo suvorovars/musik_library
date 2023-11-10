@@ -1,27 +1,32 @@
 import React from 'react';
-import Header from './Header'
-import Disk from './Disk'
+import Header from "./Header";
+import Home from "./Home";
 
-import * as styles from './App.css';
 
 class App extends React.Component {
-    response = {
-        disk: {
-            disk_title: '',
-            strings:[],
-        }
-    }
-    componentDidMount() {
-        fetch('http://localhost:5000/api/strings')
-    }
-    render() {
+    state = {
+    jsonData: null,
+    };
 
+    componentDidMount() {
+        this.fetchData();
+    }
+    fetchData = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/get/strings');
+            const data = await response.json();
+
+            this.setState({ jsonData: data });
+        }
+        catch (error) {
+            console.error('Ошибка при запросе:', error);
+        }
+    };
+    render() {
         return (
             <div>
                 <Header/>
-                <Disk/>
-                <Disk/>
-                <Disk/>
+                <Home/>
             </div>
         );
     }

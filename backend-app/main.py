@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 from db import db_session
 from db.disks import Disks
 from db.tracks import Tracks
@@ -8,6 +10,7 @@ from db.strings import Strings
 import constants
 
 app = Flask(__name__)
+CORS(app)  # Это добавляет CORS заголовки ко всем маршрутам
 
 db_session.global_init(
     f'postgresql+pg8000://{constants.db_admin}:{constants.db_password}@localhost:5432/{constants.db_name}')
@@ -41,7 +44,9 @@ def add_performers():
         return jsonify({'success': True})
     return jsonify({'success': False})
 
-@app.route('/api/get/strings', methods=['POST'])
+@app.route('/api/')
+
+@app.route('/api/get/strings', methods=['GET'])
 def get_strings():
     # TODO: сделать запрос в базу данных с возвратом данных в таком виде
     return jsonify([
