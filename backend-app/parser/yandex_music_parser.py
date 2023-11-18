@@ -44,6 +44,14 @@ def get_tracks(client: Client, artist_id: int, artist_name: int, num_of_tracks: 
             break
         c += 1
     return tracks_info
+
+def get_client(path=".env") -> Client:
+    env = environ.Env(DEBUG=(bool, False))
+    environ.Env.read_env()
+    client = Client(token=env("TOKEN"))
+    client.init()
+    return client
+
         
 def main():
     env = environ.Env(DEBUG=(bool, False))

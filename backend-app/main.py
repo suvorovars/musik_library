@@ -1,76 +1,72 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-from db import db_session
-from db.disks import Disks
-from db.tracks import Tracks
-from db.performers import Performers
-from db.genres import Genres
-from db.strings import Strings
-import constants
+from db import session
+from db.tables.disks import Disks
+from db.tables.tracks import Tracks
+from db.tables.performers import Performers
+from db.tables.genres import Genres
+from db.tables.strings import Strings
+
+import parser.yandex_music_parser as parser
+
+import os
 
 app = Flask(__name__)
 CORS(app)  # Это добавляет CORS заголовки ко всем маршрутам
 
-db_session.global_init(
-    f'postgresql+pg8000://{constants.db_admin}:{constants.db_password}@localhost:5432/{constants.db_name}')
-
-
-@app.route('/api/test')
-def test():
-    session = db_session.create_session()
-    response = session.query(Strings).all()
-    return response
-
-
-@app.route('/api/add/genres', methods=['POST', 'GET'])
-def add_genres():
-    form = request.get_json(force=True)
-    session = db_session.create_session()
-    if form['genre_title'] is not None:
-        new_genre = Genres(genre_title=form['genre_title'])
-        session.add(new_genre)
-        return jsonify({'success': True})
-    return jsonify({'success': False})
-
-
-@app.route('/api/add/performers', methods=['POST'])
-def add_performers():
-    form = request.get_json(force=True)
-    session = db_session.create_session()
-    if form['performer_name'] is not None:
-        new_performer = Performers(performer_name=form['performer_name'])
-        session.add(new_performer)
-        return jsonify({'success': True})
-    return jsonify({'success': False})
-
 @app.route('/api/')
+
+@app.route('/api/gather/performers', methods=['POST'])
+def gather_performers():
+    nickname = request.form.get('nickname')
+    conn = session.create_session()
+    if session.get_performers(conn, nickname) != []:
+        return {"success": False, "result": "You cannot add this performer! Probably he already exists."}
+    client = parser.get_client()
+    performer_info = parser.search_artists(client, nickname)
+    session.add_performer(conn, performer_info[0]['artist_name'])
+    for track_info in performer_info:
+        track_title = track_info['track_title']
+        genre_name = track_info['genre']
+
+        if session.get_genres(conn, genre_name=genre_name) == []:
+            session.add_genre(conn, genre_name)
+        if session.get_tracks(conn, track_title) == []:
+            session.add_track(conn, track_title)
+
+    return {"success": True}
+
+@app.route('/api/create/string', methods=['POST'])
+def create_string():
+    pass
+
+@app.route('/api/create/disk', methods=['POST'])
+def create_disk():
+    pass
 
 @app.route('/api/get/strings', methods=['GET'])
 def get_strings():
-    # TODO: сделать запрос в базу данных с возвратом данных в таком виде
-    return jsonify([
-        {
-            "disk": "Ремиксы",
-            "strings": [
-                {
-                    "number": 1,
-                    "track_title": "Начало",
-                    "performer_name": "<NAME>",
-                    "genre_title": "<TITLE>",
-                    "duration": "<TIME>",
+    conn = session.create_session()
 
-                },
-                {
-                    "number": 2,
-                    "track_title": "Конец",
-                    "performer_name": "<NAME>",
-                    "genre_title": "<TITLE>",
-                    "duration": "<TIME>"
-                }
-            ]
-        }
-    ])
+    string_id = request.args.get('string_id')
+    limit = request.args.get('limit')
+
+    if not(string_id):
+        return {'status': False}
+    
+    string_id = int(string_id)
+    limit = 5 if not(limit) else int(limit)
+    strings = session.get_strings(conn, string_id=string_id, limit=limit)
+
+    print(strings)
+
+    return {'status': True}
+
+@app.route('/', methods=['GET'])
+def main():
+    return "hello, world!"
 
 
 app.run()
+

@@ -1,0 +1,4 @@
+backend-app/db/test.py
+backend-app/db/db_config.py
+backend-app/parser/.env
+*__pycache__*
