@@ -30,8 +30,9 @@ def global_init(db_file: String) -> None:
     conn_str = db_file  # Можно отредактировать, для использования с базами данных других типов
     print(f"Подключение к базе данных по адресу {conn_str}")
 
-    engine = sa.create_engine(conn_str, echo=True)
+    engine = sa.create_engine(conn_str, echo=False)
     __factory = orm.sessionmaker(bind=engine)
+
 
     from . import __all_models
 
@@ -44,3 +45,6 @@ def create_session() -> Session:
     """
     global __factory
     return __factory()
+
+def create_connection():
+    pass

@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from sqlalchemy.orm import class_mapper
 
 from db import db_session
 from db.disks import Disks
@@ -15,15 +16,49 @@ CORS(app)  # Это добавляет CORS заголовки ко всем м�
 db_session.global_init(
     f'postgresql+pg8000://{constants.db_admin}:{constants.db_password}@localhost:5432/{constants.db_name}')
 
+def custom_json(obj):
+    if hasattr(obj, '__table__'):
+        return {c.key: getattr(obj, c.key) for c in class_mapper(obj.__class__).columns}
+    raise TypeError("Object of type '{}' is not JSON serializable".format(type(obj)))
+
+
 
 @app.route('/api/test')
 def test():
+    response_json = []
     session = db_session.create_session()
-    response = session.query(Strings).all()
-    return response
+    lst_disks = session.query(Disks.disk_id, Disks.disk_title, Disks.year).all()
+    for i in lst_disks:
+        data_frame = {
+                'id': i[0],
+                'disk': i[1],
+                'strings': []
+            }
+        response = session.query(
+            Strings.string_number,
+            Tracks.track_title,
+            Performers.performer_name,
+            Genres.genre_title,
+            Strings.duration,
+            Strings.disk_fk
+        ).join(Tracks, Tracks.track_id == Strings.track_fk
+               ).join(Performers, Performers.performer_id == Strings.performer_fk
+                      ).join(Genres, Genres.genre_id == Strings.genre_fk).filter(Strings.disk_fk == i[0]).all()
+        for j in response:
+            if j:
+                data_frame['strings'].append({
+                    'number': j[0],
+                    'track_title': j[1],
+                    'performer_name': j[2],
+                    'genre_title': j[3],
+                    'duration': j[4]
+                })
+        response_json.append(data_frame)
+    print(response_json)
+    return jsonify(response_json)
 
 
-@app.route('/api/add/genres', methods=['POST', 'GET'])
+@app.route('/api/add/genres', methods=['POST'])
 def add_genres():
     form = request.get_json(force=True)
     session = db_session.create_session()
@@ -44,33 +79,41 @@ def add_performers():
         return jsonify({'success': True})
     return jsonify({'success': False})
 
-@app.route('/api/')
 
 @app.route('/api/get/strings', methods=['GET'])
 def get_strings():
-    # TODO: сделать запрос в базу данных с возвратом данных в таком виде
-    return jsonify([
-        {
-            "disk": "Ремиксы",
-            "strings": [
-                {
-                    "number": 1,
-                    "track_title": "Начало",
-                    "performer_name": "<NAME>",
-                    "genre_title": "<TITLE>",
-                    "duration": "<TIME>",
+    response_json = []
+    session = db_session.create_session()
+    lst_disks = session.query(Disks.disk_id, Disks.disk_title, Disks.year).all()
+    for i in lst_disks:
 
-                },
-                {
-                    "number": 2,
-                    "track_title": "Конец",
-                    "performer_name": "<NAME>",
-                    "genre_title": "<TITLE>",
-                    "duration": "<TIME>"
-                }
-            ]
+        data_frame = {
+            'id': i[0],
+            'disk': i[1],
+            'strings': []
         }
-    ])
+        response = session.query(
+            Strings.string_number,
+            Tracks.track_title,
+            Performers.performer_name,
+            Genres.genre_title,
+            Strings.duration,
+            Strings.disk_fk
+        ).join(Tracks, Tracks.track_id == Strings.track_fk
+               ).join(Performers, Performers.performer_id == Strings.performer_fk
+                      ).join(Genres, Genres.genre_id == Strings.genre_fk).filter(Strings.disk_fk == i[0]).all()
+        for j in response:
+            if j:
+                data_frame['strings'].append({
+                    'number': j[0],
+                    'track_title': j[1],
+                    'performer_name': j[2],
+                    'genre_title': j[3],
+                    'duration': j[4]
+                })
+        response_json.append(data_frame)
+    print(response_json)
+    return jsonify(response_json)
 
 
-app.run()
+app.run(port=8000)

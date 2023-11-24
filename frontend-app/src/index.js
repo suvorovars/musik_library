@@ -1,10 +1,9 @@
 import React from 'react';
-import * as ReactDOMClient from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import App from './App';
+import Home from "./Home";
 
-const app = ReactDOMClient.createRoot(document.getElementById('app'));
-
-
-
-app.render(<App />);
-
+ReactDOM.render(
+  <App page='home'/>,
+  document.getElementById('root')
+);
