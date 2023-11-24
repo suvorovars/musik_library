@@ -2,17 +2,15 @@ from tokenize import String
 
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, as_declarative
 
 
 # переменная, которая хранит фабрику сессий базы данных
 __factory = None
 
-
-@as_declarative()
-class SqlAlchemyBase:
-    # Базовый класс для объектов User и Task
-    pass
+# Переменная, которая хранит коннект
+__connection = None
 
 
 def global_init(db_file: String) -> None:
@@ -34,9 +32,13 @@ def global_init(db_file: String) -> None:
     __factory = orm.sessionmaker(bind=engine)
 
 
-    from . import __all_models
+    from .tables import __all_models
+    from .tables.default import SqlAlchemyBase
 
     SqlAlchemyBase.metadata.create_all(engine)
+
+    global __connection
+    __connection = engine.connect
 
 
 def create_session() -> Session:
@@ -46,5 +48,10 @@ def create_session() -> Session:
     global __factory
     return __factory()
 
-def create_connection():
-    pass
+
+def create_connection() -> 'Connection':
+    """
+    Функция возращает новый Коннект SQLAlchemy
+    """
+    global __connection
+    return __connection()

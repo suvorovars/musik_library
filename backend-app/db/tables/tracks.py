@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from .db_session import SqlAlchemyBase
+from .default import SqlAlchemyBase
 
 class Tracks(SqlAlchemyBase):
     __tablename__ = "tracks"
