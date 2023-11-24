@@ -1,6 +1,6 @@
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from .db_session import SqlAlchemyBase
+from .default import SqlAlchemyBase
 
 class Genres(SqlAlchemyBase):
     __tablename__ = "genres"
