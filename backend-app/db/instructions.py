@@ -7,8 +7,8 @@ from .tables.strings import Strings
 from .tables.tracks import Tracks
 
 
-def add_genre(connection, genre_name: str):
-    query = sqlalchemy.insert(Genres).values({'genre_name': genre_name})
+def add_genre(connection, genre_title: str):
+    query = sqlalchemy.insert(Genres).values({'genre_title': genre_title})
     connection.execute(query)
     connection.commit()
 
@@ -20,7 +20,7 @@ def add_performer(connection, performer_name: str):
 
 
 def add_disk(connection, disk_name: str, disk_date: int):
-    query = sqlalchemy.insert(Disks).values({'disk_name': disk_name, 'disk_date': disk_date})
+    query = sqlalchemy.insert(Disks).values({'disk_title': disk_name, 'year': disk_date})
     connection.execute(query)
     connection.commit()
 
@@ -39,9 +39,9 @@ def add_string(connection, disk_fk: int, performer_fk: int, track_fk: int, genre
     connection.commit()
 
 
-def get_genres(connection, genre_name=None):
-    if genre_name:
-        query = sqlalchemy.select(Genres).where(Genres.genre_name == genre_name)
+def get_genres(connection, genre_title=None):
+    if genre_title:
+        query = sqlalchemy.select(Genres).where(Genres.genre_title == genre_title)
     else:
         query = sqlalchemy.select(Genres)
 
@@ -50,7 +50,7 @@ def get_genres(connection, genre_name=None):
 
 def get_performers(connection, nickname=None):
     if nickname:
-        query = sqlalchemy.select(Performers).where(Performers.performer_nickname == nickname)
+        query = sqlalchemy.select(Performers).where(Performers.performer_name == nickname)
     else:
         query = sqlalchemy.select(Performers)
 
@@ -66,21 +66,23 @@ def get_tracks(connection, track_title=None):
     return connection.execute(query).fetchall()
 
 
-def get_disks(connection, disk_id=None):
+def get_disks(connection, disk_id=None, disk_title=None):
+    query = sqlalchemy.select(Disks)
     if disk_id:
-        query = sqlalchemy.select(Disks).where(Disks.disk_id == disk_id)
-    else:
-        query = sqlalchemy.select(Disks)
+        query = query.where(Disks.disk_id == disk_id)
+    if disk_title:
+        query = query.where(Disks.disk_title == disk_title)
 
     return connection.execute(query).fetchall()
 
 
 def get_strings(connection, string_id=None, limit=5):
     if string_id:
-        query = sqlalchemy.select(Strings).where(Strings.string_id >= string_id).limit(limit)
+        query = sqlalchemy.select(Strings).where(Strings.id >= string_id).limit(limit)
     else:
         query = sqlalchemy.select(Strings).limit(5)
     return connection.execute(query).fetchall()
+
 
 def get_string_number(connection, disk_fk: int):
     query = sqlalchemy.select(Strings.string_number).where(Strings.disk_fk == disk_fk).order_by(Strings.string_number.desc()).limit(1)

@@ -8,7 +8,8 @@ from db.tables.tracks import Tracks
 from db.tables.performers import Performers
 from db.tables.genres import Genres
 from db.tables.strings import Strings
-import config
+
+import db.db_config as config
 
 from parser import yandex_music_parser as parser
 
@@ -16,33 +17,38 @@ app = Flask(__name__)
 CORS(app)  # Это добавляет CORS заголовки ко всем маршрутам
 
 db_session.global_init(
-    f'postgresql+pg8000://{config.db_admin}:{config.db_password}@localhost:5432/{config.db_name}')
-
-@app.route('/api/gather/performers', methods=['POST'])
-def gather_performers():
-    nickname = request.form.get('nickname')
-    conn = db_session.create_connection()
-    if instructions.get_performers(conn, nickname) != []:
-        return {"success": False, "result": "You cannot add this performer! Probably he already exists."}
-    client = parser.get_client()
-    performer_info = parser.search_artists(client, nickname)
-    instructions.add_performer(conn, performer_info[0]['artist_name'])
-    for track_info in performer_info:
-        track_title = track_info['track_title']
-        genre_name = track_info['genre']
-
-        if instructions.get_genres(conn, genre_name=genre_name) == []:
-            instructions.add_genre(conn, genre_name)
-        if instructions.get_tracks(conn, track_title) == []:
-            instructions.add_track(conn, track_title)
-
-    return {"success": True}
+    f'postgresql+pg8000://{config.db_admin}:{config.db_password}@localhost:5432/{config.db_name}'
+    )
 
 def custom_json(obj):
     if hasattr(obj, '__table__'):
         return {c.key: getattr(obj, c.key) for c in class_mapper(obj.__class__).columns}
     raise TypeError("Object of type '{}' is not JSON serializable".format(type(obj)))
 
+@app.route('/api/gather/performers', methods=['POST'])
+def gather_performers():
+    form = request.get_json(force=True)
+    if form.get('nickname') is None:
+        return jsonify({'success': False})
+    nickname = form.get('nickname').upper()
+    print(nickname)
+    conn = db_session.create_connection()
+    if instructions.get_performers(conn, nickname) != []:
+        return {"success": False, "result": "You cannot add this performer! Probably he already exists."}
+    client = parser.get_client()
+    performer_info = parser.search_artists(client, nickname)
+    instructions.add_performer(conn, performer_info[0]['artist_name'])
+
+    for track_info in performer_info:
+        track_title = track_info['track_title']
+        genre_name = track_info['genre']
+
+        if instructions.get_genres(conn, genre_title=genre_name) == []:
+            instructions.add_genre(conn, genre_name)
+        if instructions.get_tracks(conn, track_title) == []:
+            instructions.add_track(conn, track_title)
+
+    return {"success": True}
 
 
 @app.route('/api/test')
@@ -107,14 +113,16 @@ def add_tracks():
 @app.route('/api/add/disks', methods=['POST'])
 def add_disks():
     form = request.get_json(force=True)
+    print(form.get('disk_title'))
+    print(form.get('disk_year'))
     if (form.get('disk_title') and form.get('disk_year')) is None:
-        return jsonify({'success': False, 'error': 'Переданы не все данные!'})
+        return jsonify({'success': False, 'error': "wrong data request!"})
     if (len(form.get('disk_title')) != len(form.get('disk_year'))):
-        return jsonify({'success': False, 'error': 'Длина данных не совпадает'})
+        return jsonify({'success': False, 'error': 'Different length of your data request!'})
 
     connection = db_session.create_connection()
 
-    for disk_title, disk_year in zip(form.get('disk'), form.get('disk_year')):
+    for disk_title, disk_year in zip(form.get('disk_title'), form.get('disk_year')):
         instructions.add_disk(connection, disk_title, disk_year)
     return jsonify({'success': True})
 
@@ -122,12 +130,10 @@ def add_disks():
 def add_strings():
     form = request.get_json(force=True)
     if (form.get('disk_fk') and form.get('track_fk') and form.get('genre_fk') and form.get('duration') and form.get('performer_fk')) is None:
-        return jsonify({'success': False, 'type': 'Переданы не все данные'})
+        return jsonify({'success': False, 'type': 'wrong data request!'})
 
     if (len(form.get('disk_fk')) != len(form.get('track_fk')) != len(form.get('genre_fk')) != len(form.get('duration')) != len(form.get('performer_fk'))):
-        return jsonify({'success': False, 'type': 'Данные не совпадают по длине'})
-
-    #TODO: высчитывать номер строки самостоятельно
+        return jsonify({'success': False, 'type': 'Different length of your data request!'})
 
     connection = db_session.create_connection()
     for disk_fk, track_fk, genre_fk, performer_fk, duration in zip(
@@ -195,5 +201,68 @@ def get_strings():
     print(response_json)
     return jsonify(response_json)
 
+@app.route('/api/get/performers', methods=['GET'])
+def get_performers():
+    response_json = []
+    connection = db_session.create_connection()
+    performers = instructions.get_performers(connection)
+    for performer_info in performers:
 
+        data_frame = {
+            'performer_id': performer_info[0],
+            'performer_name': performer_info[1]
+            }
+    
+        response_json.append(data_frame)
+
+    return jsonify(response_json)
+
+@app.route('/api/get/tracks', methods=['GET'])
+def get_tracks():
+    response_json = []
+    connection = db_session.create_connection()
+    tracks = instructions.get_tracks(connection)
+    for track_info in tracks:
+
+        data_frame = {
+            'track_id': track_info[0],
+            'track_title': track_info[1]
+            }
+    
+        response_json.append(data_frame)
+
+    return jsonify(response_json)
+
+@app.route('/api/get/genres', methods=['GET'])
+def get_genres():
+    response_json = []
+    connection = db_session.create_connection()
+    genres = instructions.get_genres(connection)
+    for genre_info in genres:
+
+        data_frame = {
+            'genre_id': genre_info[0],
+            'genre_title': genre_info[1]
+            }
+    
+        response_json.append(data_frame)
+
+    return jsonify(response_json)
+
+@app.route('/api/get/disks', methods=['GET'])
+def get_disks():
+    response_json = []
+    connection = db_session.create_connection()
+    disks = instructions.get_disks(connection)
+    for disk_info in disks:
+
+        data_frame = {
+            'disk_id': disk_info[0],
+            'disk_title': disk_info[1],
+            'year': disk_info[2],
+            }
+    
+        response_json.append(data_frame)
+
+    return jsonify(response_json)
 app.run(port=8000)
