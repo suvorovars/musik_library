@@ -1,0 +1,13 @@
+.stApp > header {
+    background-color: transparent;
+}
+
+.stApp {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: auto;
+
+    margin-top: 0px;
+    margin-left: 7%;
+    margin-right: 7%;
+}
+

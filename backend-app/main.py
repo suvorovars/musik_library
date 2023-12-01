@@ -175,7 +175,8 @@ def get_strings():
 
         data_frame = {
             'id': i[0],
-            'disk': i[1],
+            'disk_title': i[1],
+            'year': i[2],
             'strings': []
         }
         response = session.query(
@@ -261,7 +262,7 @@ def get_disks():
             'disk_title': disk_info[1],
             'year': disk_info[2],
             }
-    
+
         response_json.append(data_frame)
 
     return jsonify(response_json)

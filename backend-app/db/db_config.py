@@ -1,4 +1,4 @@
-db_admin = ''
-db_password = ''
+db_admin = 'suvorovars'
+db_password = 'suv'
 db_host = 'localhost'
-db_name = ''
+db_name = 'library'
