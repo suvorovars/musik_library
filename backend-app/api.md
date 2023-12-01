@@ -26,7 +26,7 @@
 - description: adds a new disk to database
 - parameters: disk_title, disk_year
 - result: json {'success': True}
-- Example: {'disk': 'New tracks 2017'}
+- Example: {'disk': 'New tracks 2017', 'year': '2017'}
 
 ## /api/add/strings [POST]
 
