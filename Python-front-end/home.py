@@ -13,7 +13,9 @@ def create_home_page():
     click_disk = None
     response = requests.get('http://localhost:8000/api/get/strings')
 
+
     for disk in response.json():
+        print(disk)
         col1, col2 = st.columns(2)
 
         if disk['strings']:
