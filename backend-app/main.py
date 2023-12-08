@@ -266,4 +266,4 @@ def get_disks():
         response_json.append(data_frame)
 
     return jsonify(response_json)
-app.run(port=8000)
+
