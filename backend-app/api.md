@@ -78,7 +78,7 @@
 ### /api/edit/disks
 
 - description: updates values in database
-- parameters: old_disk_id, old_disk_title, old_year, new_disk_id, new_disk_title, new_disk_id
+- parameters: old_disk_id, old_disk_title, old_year, new_disk_id, new_disk_title, new_year
 - result: json {'success': True}
 - example: {"old_disk_id": 1, "new_disk_id": 2}
 
