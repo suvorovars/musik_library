@@ -51,3 +51,5 @@ elif selected == 'Genre':
         pass
     elif selected_genre_page == "Edit":
         pass
+
+
