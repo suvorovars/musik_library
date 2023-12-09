@@ -142,7 +142,8 @@ def add_strings():
                 form.get('genre_fk'),
                 form.get('performer_fk'),
                 form.get('duration')):
-        string_number = instructions.get_string_number(connection, disk_fk)[0][0]
+        string_number = instructions.get_string_number(connection, disk_fk)
+        string_number = string_number[0][0] if string_number else 0
         instructions.add_string(connection,
                                 disk_fk=disk_fk,
                                 track_fk=track_fk,
@@ -266,4 +267,4 @@ def get_disks():
         response_json.append(data_frame)
 
     return jsonify(response_json)
-app.run(port=8000)
+#app.run(port=8000)
