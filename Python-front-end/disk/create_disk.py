@@ -55,7 +55,7 @@ def add_disk(disk_title, disk_year, strings):
     response = requests.post("http://localhost:8000/api/add/strings", json=json_strings)
 
 
-def create_create_disk_page(api_url='http://localhost:8000'):
+def create_disk_page(api_url='http://localhost:8000'):
     st.title("Добавление нового Диска")
 
     # Используем st.session_state для хранения переменной между вызовами
