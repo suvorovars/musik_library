@@ -18,12 +18,14 @@ CORS(app)  # Это добавляет CORS заголовки ко всем м�
 
 db_session.global_init(
     f'postgresql+pg8000://{config.db_admin}:{config.db_password}@localhost:5432/{config.db_name}'
-    )
+)
+
 
 def custom_json(obj):
     if hasattr(obj, '__table__'):
         return {c.key: getattr(obj, c.key) for c in class_mapper(obj.__class__).columns}
     raise TypeError("Object of type '{}' is not JSON serializable".format(type(obj)))
+
 
 @app.route('/api/gather/performers', methods=['POST'])
 def gather_performers():
@@ -58,10 +60,10 @@ def test():
     lst_disks = session.query(Disks.disk_id, Disks.disk_title, Disks.year).all()
     for i in lst_disks:
         data_frame = {
-                'id': i[0],
-                'disk': i[1],
-                'strings': []
-            }
+            'id': i[0],
+            'disk': i[1],
+            'strings': []
+        }
         response = session.query(
             Strings.string_number,
             Tracks.track_title,
@@ -98,6 +100,7 @@ def add_genres():
         instructions.add_genre(connection, genre)
     return jsonify({'success': True})
 
+
 @app.route('/api/add/tracks', methods=['POST'])
 def add_tracks():
     form = request.get_json(force=True)
@@ -109,6 +112,7 @@ def add_tracks():
     for track in form.get('track'):
         instructions.add_track(connection, track)
     return jsonify({'success': True})
+
 
 @app.route('/api/add/disks', methods=['POST'])
 def add_disks():
@@ -126,32 +130,38 @@ def add_disks():
         instructions.add_disk(connection, disk_title, disk_year)
     return jsonify({'success': True})
 
+
 @app.route('/api/add/strings', methods=['POST'])
 def add_strings():
     form = request.get_json(force=True)
-    if (form.get('disk_fk') and form.get('track_fk') and form.get('genre_fk') and form.get('duration') and form.get('performer_fk')) is None:
+    if (form.get('disk_fk') and form.get('track_fk') and form.get('genre_fk') and form.get('duration') and form.get(
+            'performer_fk')) is None:
         return jsonify({'success': False, 'type': 'wrong data request!'})
 
-    if (len(form.get('disk_fk')) != len(form.get('track_fk')) != len(form.get('genre_fk')) != len(form.get('duration')) != len(form.get('performer_fk'))):
+    if (len(form.get('disk_fk')) != len(form.get('track_fk')) != len(form.get('genre_fk')) != len(
+            form.get('duration')) != len(form.get('performer_fk'))):
         return jsonify({'success': False, 'type': 'Different length of your data request!'})
 
     connection = db_session.create_connection()
     for disk_fk, track_fk, genre_fk, performer_fk, duration in zip(
-                form.get('disk_fk'),
-                form.get('track_fk'),
-                form.get('genre_fk'),
-                form.get('performer_fk'),
-                form.get('duration')):
-        string_number = instructions.get_string_number(connection, disk_fk)[0][0]
+            form.get('disk_fk'),
+            form.get('track_fk'),
+            form.get('genre_fk'),
+            form.get('performer_fk'),
+            form.get('duration')):
+        string_number = instructions.get_string_number(connection, disk_fk)
+        string_number = 0 if string_number == [] else string_number[0][0]
+
         instructions.add_string(connection,
                                 disk_fk=disk_fk,
                                 track_fk=track_fk,
                                 genre_fk=genre_fk,
                                 performer_fk=performer_fk,
                                 duration=duration,
-                                string_num=string_number+1)
+                                string_num=string_number + 1)
 
     return jsonify({'success': True})
+
 
 @app.route('/api/add/performers', methods=['POST'])
 def add_performers():
@@ -202,21 +212,22 @@ def get_strings():
     print(response_json)
     return jsonify(response_json)
 
+
 @app.route('/api/get/performers', methods=['GET'])
 def get_performers():
     response_json = []
     connection = db_session.create_connection()
     performers = instructions.get_performers(connection)
     for performer_info in performers:
-
         data_frame = {
             'performer_id': performer_info[0],
             'performer_name': performer_info[1]
-            }
-    
+        }
+
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
 
 @app.route('/api/get/tracks', methods=['GET'])
 def get_tracks():
@@ -224,15 +235,15 @@ def get_tracks():
     connection = db_session.create_connection()
     tracks = instructions.get_tracks(connection)
     for track_info in tracks:
-
         data_frame = {
             'track_id': track_info[0],
             'track_title': track_info[1]
-            }
-    
+        }
+
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
 
 @app.route('/api/get/genres', methods=['GET'])
 def get_genres():
@@ -240,15 +251,15 @@ def get_genres():
     connection = db_session.create_connection()
     genres = instructions.get_genres(connection)
     for genre_info in genres:
-
         data_frame = {
             'genre_id': genre_info[0],
             'genre_title': genre_info[1]
-            }
-    
+        }
+
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
 
 @app.route('/api/get/disks', methods=['GET'])
 def get_disks():
@@ -256,14 +267,172 @@ def get_disks():
     connection = db_session.create_connection()
     disks = instructions.get_disks(connection)
     for disk_info in disks:
-
         data_frame = {
             'disk_id': disk_info[0],
             'disk_title': disk_info[1],
             'year': disk_info[2],
-            }
+        }
 
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
+
+@app.route('/api/edit/disks', methods=['POST'])
+def edit_disks():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.update_disks(connection,
+                              form.get('old_disk_id'),
+                              form.get('old_disk_title'),
+                              form.get('old_year'),
+                              form.get('new_disk_id'),
+                              form.get('new_disk_title'),
+                              form.get('new_year'))
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/edit/strings', methods=['POST'])
+def edit_strings():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.update_strings(connection,
+                                form.get('old_id'),
+                                form.get('old_string_number'),
+                                form.get('old_disk_fk'),
+                                form.get('old_track_fk'),
+                                form.get('old_genre_fk'),
+                                form.get('old_performer_fk'),
+                                form.get('old_duration'),
+                                form.get('new_id'),
+                                form.get('new_string_number'),
+                                form.get('new_disk_fk'),
+                                form.get('new_track_fk'),
+                                form.get('new_genre_fk'),
+                                form.get('new_performer_fk'),
+                                form.get('new_duration'),
+                                )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/edit/tracks', methods=['POST'])
+def edit_tracks():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.update_tracks(connection,
+                               form.get('old_track_id'),
+                               form.get('old_track_title'),
+                               form.get('new_track_id'),
+                               form.get('new_track_title')
+                               )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/edit/performers', methods=['POST'])
+def edit_performers():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.update_performers(connection,
+                                   form.get('old_performer_id'),
+                                   form.get('old_performer_name'),
+                                   form.get('new_performer_id'),
+                                   form.get('new_performer_name')
+                                   )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/edit/genres', methods=['POST'])
+def edit_genres():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.update_genres(connection,
+                               form.get('old_genre_id'),
+                               form.get('old_genre_title'),
+                               form.get('new_genre_id'),
+                               form.get('new_genre_title')
+                               )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/delete/disks', methods=['POST'])
+def delete_disks():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.delete_disks(connection,
+                              form.get('disk_id'),
+                              form.get('disk_title'),
+                              form.get('year'))
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/delete/strings', methods=['POST'])
+def delete_strings():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.delete_strings(
+        connection,
+        form.get('id'),
+        form.get('string_number'),
+        form.get('disk_fk'),
+        form.get('performer_fk'),
+        form.get('track_fk'),
+        form.get('genre_fk'),
+        form.get('duration'),
+    )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/delete/tracks', methods=['POST'])
+def delete_tracks():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.delete_tracks(connection,
+                               form.get('track_id'),
+                               form.get('track_title')
+                               )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/delete/genres', methods=['POST'])
+def delete_genres():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.delete_genres(connection,
+                               form.get('genre_id'),
+                               form.get('genre_title')
+                               )
+
+    return jsonify({'success': True})
+
+
+@app.route('/api/delete/performers', methods=['POST'])
+def delete_performers():
+    form = request.get_json(force=True)
+    connection = db_session.create_connection()
+
+    instructions.delete_performers(connection,
+                                   form.get('performer_id'),
+                                   form.get('performer_name')
+                                   )
+
+    return jsonify({'success': True})
+
+
 app.run(port=8000)
