@@ -1,0 +1,6 @@
+test
+*__pycache__*
+backend-app/venv
+backend-app/test.py
+backend-app/db/test.py
+backend-app/db/db_config.py
