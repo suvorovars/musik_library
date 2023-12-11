@@ -18,12 +18,14 @@ CORS(app)  # Это добавляет CORS заголовки ко всем м�
 
 db_session.global_init(
     f'postgresql+pg8000://{config.db_admin}:{config.db_password}@localhost:5432/{config.db_name}'
-    )
+)
+
 
 def custom_json(obj):
     if hasattr(obj, '__table__'):
         return {c.key: getattr(obj, c.key) for c in class_mapper(obj.__class__).columns}
     raise TypeError("Object of type '{}' is not JSON serializable".format(type(obj)))
+
 
 @app.route('/api/gather/performers', methods=['POST'])
 def gather_performers():
@@ -58,10 +60,10 @@ def test():
     lst_disks = session.query(Disks.disk_id, Disks.disk_title, Disks.year).all()
     for i in lst_disks:
         data_frame = {
-                'id': i[0],
-                'disk': i[1],
-                'strings': []
-            }
+            'id': i[0],
+            'disk': i[1],
+            'strings': []
+        }
         response = session.query(
             Strings.string_number,
             Tracks.track_title,
@@ -98,6 +100,7 @@ def add_genres():
         instructions.add_genre(connection, genre)
     return jsonify({'success': True})
 
+
 @app.route('/api/add/tracks', methods=['POST'])
 def add_tracks():
     form = request.get_json(force=True)
@@ -109,6 +112,7 @@ def add_tracks():
     for track in form.get('track'):
         instructions.add_track(connection, track)
     return jsonify({'success': True})
+
 
 @app.route('/api/add/disks', methods=['POST'])
 def add_disks():
@@ -126,13 +130,16 @@ def add_disks():
         instructions.add_disk(connection, disk_title, disk_year)
     return jsonify({'success': True})
 
+
 @app.route('/api/add/strings', methods=['POST'])
 def add_strings():
     form = request.get_json(force=True)
-    if (form.get('disk_fk') and form.get('track_fk') and form.get('genre_fk') and form.get('duration') and form.get('performer_fk')) is None:
+    if (form.get('disk_fk') and form.get('track_fk') and form.get('genre_fk') and form.get('duration') and form.get(
+            'performer_fk')) is None:
         return jsonify({'success': False, 'type': 'wrong data request!'})
 
-    if (len(form.get('disk_fk')) != len(form.get('track_fk')) != len(form.get('genre_fk')) != len(form.get('duration')) != len(form.get('performer_fk'))):
+    if (len(form.get('disk_fk')) != len(form.get('track_fk')) != len(form.get('genre_fk')) != len(
+            form.get('duration')) != len(form.get('performer_fk'))):
         return jsonify({'success': False, 'type': 'Different length of your data request!'})
 
     connection = db_session.create_connection()
@@ -150,9 +157,10 @@ def add_strings():
                                 genre_fk=genre_fk,
                                 performer_fk=performer_fk,
                                 duration=duration,
-                                string_num=string_number+1)
+                                string_num=string_number + 1)
 
     return jsonify({'success': True})
+
 
 @app.route('/api/add/performers', methods=['POST'])
 def add_performers():
@@ -275,15 +283,15 @@ def get_performers():
     connection = db_session.create_connection()
     performers = instructions.get_performers(connection, performer_name)
     for performer_info in performers:
-
         data_frame = {
             'performer_id': performer_info[0],
             'performer_name': performer_info[1]
-            }
-    
+        }
+
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
 
 @app.route('/api/get/tracks', methods=['GET'])
 def get_tracks():
@@ -292,15 +300,15 @@ def get_tracks():
     track_title = request.args.get('track_title')
     tracks = instructions.get_tracks(connection, track_title)
     for track_info in tracks:
-
         data_frame = {
             'track_id': track_info[0],
             'track_title': track_info[1]
-            }
-    
+        }
+
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
 
 @app.route('/api/get/genres', methods=['GET'])
 def get_genres():
@@ -309,15 +317,15 @@ def get_genres():
     genre_title = request.args.get('genre_title')
     genres = instructions.get_genres(connection, genre_title)
     for genre_info in genres:
-
         data_frame = {
             'genre_id': genre_info[0],
             'genre_title': genre_info[1]
-            }
-    
+        }
+
         response_json.append(data_frame)
 
     return jsonify(response_json)
+
 
 @app.route('/api/get/disks', methods=['GET'])
 def get_disks():
@@ -325,12 +333,11 @@ def get_disks():
     connection = db_session.create_connection()
     disks = instructions.get_disks(connection)
     for disk_info in disks:
-
         data_frame = {
             'disk_id': disk_info[0],
             'disk_title': disk_info[1],
             'year': disk_info[2],
-            }
+        }
 
         response_json.append(data_frame)
 
