@@ -2,8 +2,8 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 from home import create_home_page, __click_disk
-from edit_disk import create_edit_disk_page
-from create_disk import create_create_disk_page, get_data
+from disk.edit_disk import create_edit_disk_page
+from disk.create_disk import create_create_disk_page, get_data
 
 with open('./style.css') as f:
     css = f.read()

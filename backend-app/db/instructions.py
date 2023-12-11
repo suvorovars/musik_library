@@ -77,11 +77,20 @@ def get_disks(connection, disk_id=None, disk_title=None):
     return connection.execute(query).fetchall()
 
 
-def get_strings(connection, string_id=None, limit=5):
+def get_strings(connection, string_id=None, disk_fk=None, performer_fk=None, track_fk=None, genre_fk=None, string_number=None,  limit=None):
+    query = sqlalchemy.select(Strings)
     if string_id:
-        query = sqlalchemy.select(Strings).where(Strings.id >= string_id).limit(limit)
-    else:
-        query = sqlalchemy.select(Strings).limit(5)
+        query = query.where(Strings.id >= int(string_id))
+    if disk_fk:
+        query = query.where(Strings.disk_fk == int(disk_fk))
+    if performer_fk:
+        query = query.where(Strings.performer_fk == int(performer_fk))
+    if track_fk:
+        query = query.where(Strings.track_fk == int(track_fk))
+    if genre_fk:
+        query = query.where(Strings.genre_fk == int(genre_fk))
+    if limit:
+        query = query.limit(5)
     return connection.execute(query).fetchall()
 
 
@@ -194,14 +203,14 @@ def update_strings(connection,
     if new_disk_fk:
         query = query.values(disk_fk=new_disk_fk)
     if new_track_fk:
-        query = query.values(track_fk=new_disk_fk)
+        query = query.values(track_fk=new_track_fk)
     if new_genre_fk:
         query = query.values(genre_fk=new_genre_fk)
     if new_performer_fk:
         query = query.values(performer_fk=new_performer_fk)
     if new_duration:
         query = query.values(duration=new_duration)
-
+    print(query)
     connection.execute(query)
     connection.commit()
 
