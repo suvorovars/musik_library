@@ -8,7 +8,7 @@ def create_track_page(api_url='http://localhost:8000'):
 
     if track_title:
         if st.button("Подтвердить.", on_click=create_track, kwargs={'track_title': track_title}):
-            st.success("Жанр успешно добавлен!")
+            st.success("Трек успешно добавлен!")
     else:
         st.warning('Введите трек!')
 

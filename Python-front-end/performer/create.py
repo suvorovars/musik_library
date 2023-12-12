@@ -8,7 +8,7 @@ def create_performer_page(api_url='http://localhost:8000'):
 
     if performer_name:
         if st.button("Подтвердить.", on_click=create_performer, kwargs={'performer_name': performer_name}):
-            st.success("Жанр успешно добавлен!")
+            st.success("Исполнитель успешно добавлен!")
     else:
         st.warning('Введите исполнителя!')
 

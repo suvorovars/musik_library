@@ -7,10 +7,13 @@ from disk.edit_disk import create_edit_disk_page
 from disk.create_disk import create_disk_page, get_data
 
 from genre.create_genre import create_genre_page
+from genre.edit_genre import create_edit_genre_page
 
 from performer.create import create_performer_page
+from performer.edit import create_edit_performer_page
 
 from track.create import create_track_page
+from track.edit import create_edit_track_page
 
 with open('./style.css') as f:
     css = f.read()
@@ -41,7 +44,7 @@ elif selected == 'Track':
     elif selected_track_page == "Delete":
         pass
     elif selected_track_page == "Edit":
-        pass
+        create_edit_track_page()
 elif selected == 'Performer':
     selected_performer_page = st.selectbox("Add, Edit or Delete", ['Add', 'Delete', 'Edit'])
     if selected_performer_page == "Add":
@@ -49,7 +52,7 @@ elif selected == 'Performer':
     elif selected_performer_page == "Delete":
         pass
     elif selected_performer_page == "Edit":
-        pass
+        create_edit_performer_page()
 elif selected == 'Genre':
     selected_genre_page = st.selectbox("Add, Edit or Delete", ['Add', 'Delete', 'Edit'])
     if selected_genre_page == "Add":
@@ -57,6 +60,6 @@ elif selected == 'Genre':
     elif selected_genre_page == "Delete":
         pass
     elif selected_genre_page == "Edit":
-        pass
+        create_edit_genre_page()
 
 

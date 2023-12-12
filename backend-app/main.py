@@ -414,7 +414,6 @@ def edit_performers():
 def edit_genres():
     form = request.get_json(force=True)
     connection = db_session.create_connection()
-    print("Hello, world!")
     instructions.update_genres(connection,
                                form.get('old_genre_id'),
                                form.get('old_genre_title'),
