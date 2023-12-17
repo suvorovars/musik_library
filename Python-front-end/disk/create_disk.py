@@ -47,8 +47,11 @@ def add_disk(disk_title, disk_year, strings):
         json_strings["track_fk"].append(tracks[i[0]])
         json_strings["performer_fk"].append(performers[i[1]])
         json_strings["genre_fk"].append(genres[i[2]])
-        t = i[3].split(':')
-        t = int(t[0]) * 60 + int(t[1])
+        if not(i[3].isdigit()):
+            t = i[3].split(':')
+            t = int(t[0]) * 60 + int(t[1])
+        else:
+            t = int(i[3])
         json_strings["duration"].append(t)
 
     st.write(json_strings)

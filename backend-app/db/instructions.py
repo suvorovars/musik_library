@@ -244,11 +244,11 @@ def delete_strings(connection,
 def delete_disks(connection, disk_id=None, disk_title=None, year=None):
     query = sqlalchemy.delete(Disks)
     if disk_id:
-        query = query.where(Disks.disk_id == disk_id)
+        query = query.where(Disks.disk_id == int(disk_id))
     if disk_title:
         query = query.where(Disks.disk_title == disk_title)
     if year:
-        query = query.where(Disks.year == year)
+        query = query.where(Disks.year == int(year))
     
     connection.execute(query)
     connection.commit()
@@ -285,3 +285,14 @@ def delete_genres(connection, genres_id=None, genre_title=None):
     
     connection.execute(query)
     connection.commit()
+
+def get_count(connection, genre_fk=None, track_fk=None, performer_fk=None):
+    query = sqlalchemy.select(sqlalchemy.func.count()).select_from(Strings)
+    if track_fk:
+        query = query.where(Strings.track_fk == track_fk)
+    if genre_fk:
+        query = query.where(Strings.genre_fk == genre_fk)
+    if performer_fk:
+        query = query.where(Strings.performer_fk == performer_fk)
+    value = connection.execute(query)
+    return value

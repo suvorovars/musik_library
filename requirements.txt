@@ -1,3 +1,4 @@
 yandex_music
 pandas
 django-environ
+streamlit

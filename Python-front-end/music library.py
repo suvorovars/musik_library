@@ -5,6 +5,7 @@ from home import create_home_page, __click_disk
 
 from disk.edit_disk import create_edit_disk_page
 from disk.create_disk import create_disk_page, get_data
+from disk.add_string import create_add_string_page
 
 from genre.create_genre import create_genre_page
 from genre.edit_genre import create_edit_genre_page
@@ -28,9 +29,11 @@ selected = option_menu('Music Library', ["Home", "Disk", "Track", "Performer", '
 
 
 if selected == 'Disk':
-    selected_disk_page = st.selectbox("Add, Edit or Delete", ['Add', 'Delete', 'Edit'])
-    if selected_disk_page == "Add":
+    selected_disk_page = st.selectbox("Add, Edit or Delete", ['Add Disk', 'Delete', 'Edit', 'Add Track'])
+    if selected_disk_page == "Add Disk":
         create_disk_page()
+    elif selected_disk_page == "Add Track":
+        create_add_string_page()
     elif selected_disk_page == "Delete":
         pass
     elif selected_disk_page == "Edit":

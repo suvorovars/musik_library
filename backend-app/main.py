@@ -13,6 +13,8 @@ import db.db_config as config
 
 from parser import yandex_music_parser as parser
 
+import sqlalchemy
+
 app = Flask(__name__)
 CORS(app)  # Это добавляет CORS заголовки ко всем маршрутам
 
@@ -244,7 +246,6 @@ def get_strings():
                     'duration': j[4]
                 })
         response_json.append(data_frame)
-    print(response_json)
     return jsonify(response_json)
 
 @app.route('/api/get/string_values', methods=['GET'])
@@ -297,7 +298,7 @@ def get_performers():
 def get_tracks():
     response_json = []
     connection = db_session.create_connection()
-    track_title = request.args.get('track_title')
+    track_title = request.args.get('track_title') 
     tracks = instructions.get_tracks(connection, track_title)
     for track_info in tracks:
         data_frame = {
@@ -488,6 +489,40 @@ def delete_performers():
         form.get('performer_name')
         )
     
+    return jsonify({'success': True})
+
+@app.route('/api/get/count', methods=['GET'])
+def get_counts():
+    connection = db_session.create_connection()
+
+    track_title = request.args.get('track_title')
+    genre_title = request.args.get('genre_title')
+    performer_name = request.args.get('performer_name')
+
+    track_fk = None
+    genre_fk = None
+    performer_fk = None
+
+    if track_title:
+        track_fk = instructions.get_tracks(connection, track_title=track_title)
+        if track_fk != []:
+            track_fk = track_fk[0][0]
+        else:
+            track_fk = None
+    if genre_title:
+        genre_fk = instructions.get_genres(connection, genre_title=genre_title)
+        if genre_fk != []:
+            genre_fk = genre_fk[0][0]
+        else:
+            genre_fk = None
+    if performer_name:
+        performer_fk = instructions.get_performers(connection, nickname=performer_name)
+        if performer_fk != []:
+            performer_fk = performer_fk[0][0]
+        else:
+            performer_fk = None
+
+    print(instructions.get_count(connection, track_fk=track_fk, genre_fk=genre_fk, performer_fk=performer_fk).fetchall())
     return jsonify({'success': True})
 
 app.run(port=8000)
