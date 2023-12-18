@@ -53,8 +53,6 @@ def add_disk(disk_title, disk_year, strings):
         else:
             t = int(i[3])
         json_strings["duration"].append(t)
-
-    st.write(json_strings)
     response = requests.post("http://localhost:8000/api/add/strings", json=json_strings)
 
 

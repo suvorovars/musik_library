@@ -1,4 +1,4 @@
-db_admin = 'fombus'
-db_password = 'pass'
+db_admin = 'suvorovars'
+db_password = 'suv'
 db_host = 'localhost'
-db_name = 'library'
+db_name = 'new_db'

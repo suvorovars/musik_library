@@ -6,7 +6,7 @@ from .default import SqlAlchemyBase
 class Disks(SqlAlchemyBase):
     __tablename__ = "disks"
     disk_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    string: Mapped["Strings"] = relationship( back_populates="disk")
+    string: Mapped["Strings"] = relationship(back_populates="disk")
 
     disk_title: Mapped[str] = mapped_column(nullable=False)
     year: Mapped[int] = mapped_column(nullable=False)

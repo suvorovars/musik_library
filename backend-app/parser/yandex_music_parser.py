@@ -1,6 +1,6 @@
 from yandex_music import Client
 import pandas as pd
-import environ
+# import environ
 
 '''
 Эта функция получает на вход:
@@ -46,26 +46,28 @@ def get_tracks(client: Client, artist_id: int, artist_name: int, num_of_tracks: 
     return tracks_info
 
 def get_client(path=".env") -> Client:
-    env = environ.Env(DEBUG=(bool, False))
-    environ.Env.read_env()
-    client = Client(token=env("TOKEN"))
-    client.init()
-    return client
+    # env = environ.Env(DEBUG=(bool, False))
+    # environ.Env.read_env()
+    # client = Client(token=env("TOKEN"))
+    # client.init()
+    # return client
+    pass
 
         
 def main():
-    env = environ.Env(DEBUG=(bool, False))
-    environ.Env.read_env()
-    client = Client(token=env("TOKEN"))
-    client.init()
-
-    columns = ['artist_id', 'artist_name', 'track_id', 'track_title', 'genre']
-    df = pd.DataFrame(columns=columns)
-
-    #Получить 5 самых популярных трека BONES
-    artist = search_artists(client, "BONES", 5)
-    df = df._append(artist, ignore_index=True)
-    df.to_csv("data.csv", index=False)
+    # env = environ.Env(DEBUG=(bool, False))
+    # environ.Env.read_env()
+    # client = Client(token=env("TOKEN"))
+    # client.init()
+    #
+    # columns = ['artist_id', 'artist_name', 'track_id', 'track_title', 'genre']
+    # df = pd.DataFrame(columns=columns)
+    #
+    # #Получить 5 самых популярных трека BONES
+    # artist = search_artists(client, "BONES", 5)
+    # df = df._append(artist, ignore_index=True)
+    # df.to_csv("data.csv", index=False)
+    pass
 
 if __name__ == '__main__':
     main()

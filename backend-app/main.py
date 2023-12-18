@@ -13,7 +13,6 @@ import db.db_config as config
 
 from parser import yandex_music_parser as parser
 
-import sqlalchemy
 
 app = Flask(__name__)
 CORS(app)  # Это добавляет CORS заголовки ко всем маршрутам
@@ -433,7 +432,6 @@ def delete_disks():
         form.get('disk_id'),
         form.get('disk_title'),
         form.get('year'))
-    
     return jsonify({'success': True})
 
 
@@ -464,7 +462,6 @@ def delete_tracks():
         form.get('track_id'),
         form.get('track_title')
         )
-    
     return jsonify({'success': True})
 
 @app.route('/api/delete/genres', methods=['POST'])
@@ -525,4 +522,4 @@ def get_counts():
     print(instructions.get_count(connection, track_fk=track_fk, genre_fk=genre_fk, performer_fk=performer_fk).fetchall())
     return jsonify({'success': True})
 
-app.run(port=8000)
+# app.run(port=8000)
